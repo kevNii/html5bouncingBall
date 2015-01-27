@@ -1,0 +1,127 @@
+<!DOCTPE html>
+<html>
+	<head>
+		<title>Bouncing Ball</title>
+		<meta name="author" content="kevNi">
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	</head>
+	<body>
+		<div align="center">
+			<canvas id="canv" width="600" height="600"></canvas>
+			<br />
+			<span>Press Space to Restart</span>
+		</div>
+		<script type="text/javascript">
+			"use strict";
+			$(document).ready(function(){
+				var canvas = $("#canv")[0];
+				var ctx = canvas.getContext("2d");
+				var w = $("#canv").width();
+				var h = $("#canv").height();
+
+				var cw = 30;
+				var gameLoopSpeed = 40;
+				var maxspeed = 2;
+				var gravity = 0.07;
+				var termVelo = 1;
+				var drag = 0.003;
+				var gameLoop;
+				var ball = [];
+
+				init();
+
+				function render(){
+					// clear canvas
+					ctx.fillStyle = "white";
+					ctx.fillRect(0, 0, w, h);
+					ctx.strokeStyle = "black";
+					ctx.strokeRect(0, 0, w, h);
+
+					// physics
+					// gravity
+					if(ball.dy < termVelo){
+						ball.dy = Math.round((ball.dy+gravity)*100)/100;
+					}
+					if(Math.abs(ball.dy) < gravity){
+						ball.dy = 0;
+					}
+					//air-res
+					if(Math.abs(ball.dx) < drag){
+						ball.dx = 0;
+					} else {
+						if(ball.dx > 0){
+							ball.dx = Math.round((ball.dx-drag)*1000)/1000;
+						} else {
+							ball.dx = Math.round((ball.dx+drag)*1000)/1000;
+						}
+					}
+
+					//calc new position
+					ball.x += ball.dx;
+					ball.y += ball.dy;
+
+					// collision
+					if(ball.x <= 0){
+						ball.dx = -ball.dx;
+						ball.x = 0;
+					}
+					if(cw*ball.x+cw >= w){
+						ball.dx = -ball.dx;
+						ball.x = Math.round((w-cw)/cw*10)/10;
+					}
+					if(ball.y <= 0){
+						ball.dy = -ball.dy;
+						ball.y = 0;
+					}
+					if(cw*ball.y+cw >= h){
+						ball.dy = -ball.dy;
+						ball.y = Math.round((h-cw)/cw*10)/10;
+					}
+
+					// draw ball
+					// paintCell(ball.x, ball.y, "blue");
+					drawBall(ball.x, ball.y);
+
+					// End Mainloop if movement ends on floor
+					if(Math.round(ball.dy*100)/100 == 0 && Math.round(ball.dx*100)/100 == 0 && cw*ball.y+cw+1 >= h){
+						clearInterval(gameLoop);
+					}
+				}
+
+				function createBall(){
+					var plusOrMinusX = Math.random() < 0.5 ? -1 : 1;
+					var plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
+					ball = {
+						x: Math.round(Math.random()*(w-2*cw)/cw),
+						y: Math.round(Math.random()*(h-2*cw)/cw),
+						dx: plusOrMinusX*Math.round(Math.random()*maxspeed*100)/100,
+						dy: plusOrMinusY*Math.round(Math.random()*maxspeed*100)/100
+					}
+				}
+
+				function drawBall(x, y){
+					var imageObj = new Image();
+					imageObj.onload = function() {
+					  ctx.drawImage(imageObj, x*cw, y*cw, cw, cw);
+					};
+					imageObj.src = 'http://kevni.com/html5/bouncingBall/ball.png';
+				}
+
+				function init(){
+					if(typeof gameLoop != "undefined") {
+						clearInterval(gameLoop);
+					}
+					gameLoop = setInterval(render, gameLoopSpeed);
+					createBall();
+				}
+
+				$(document).keydown(function(e){
+					if (e.which == 32) {
+						e.preventDefault();
+						init();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
