@@ -21,14 +21,13 @@
 				var h = $("#canv").height();
 
 				var cw = 30;
-				var gameLoopSpeed = 40;
-				var maxspeed = 2;
-				var gravity = 0.07;
-				var termVelo = 1;
-				var drag = 0.003;
+				var gameLoopSpeed = 30;
+				var maxspeed = 100;
+				var gravity = 5;
+				var termVelo = maxspeed;
+				var drag = 0.18;
 				var gameLoop;
 				var ball = [];
-
 				init();
 
 				function render(){
@@ -39,24 +38,6 @@
 					ctx.strokeRect(0, 0, w, h);
 
 					// physics
-					// gravity
-					if(ball.dy < termVelo){
-						ball.dy = Math.round((ball.dy+gravity)*100)/100;
-					}
-					if(Math.abs(ball.dy) < gravity){
-						ball.dy = 0;
-					}
-					//air-res
-					if(Math.abs(ball.dx) < drag){
-						ball.dx = 0;
-					} else {
-						if(ball.dx > 0){
-							ball.dx = Math.round((ball.dx-drag)*1000)/1000;
-						} else {
-							ball.dx = Math.round((ball.dx+drag)*1000)/1000;
-						}
-					}
-
 					//calc new position
 					ball.x += ball.dx;
 					ball.y += ball.dy;
@@ -66,25 +47,51 @@
 						ball.dx = -ball.dx;
 						ball.x = 0;
 					}
-					if(cw*ball.x+cw >= w){
+					if(ball.x+cw >= w){
 						ball.dx = -ball.dx;
-						ball.x = Math.round((w-cw)/cw*10)/10;
+						ball.x = w-cw;
 					}
 					if(ball.y <= 0){
 						ball.dy = -ball.dy;
 						ball.y = 0;
 					}
-					if(cw*ball.y+cw >= h){
+					if(ball.y+cw >= h){
 						ball.dy = -ball.dy;
-						ball.y = Math.round((h-cw)/cw*10)/10;
+						ball.y = h-cw;
+					}
+
+					// gravity
+					if(ball.dy < termVelo){
+						ball.dy = ball.dy+gravity;
+					}
+					if(Math.abs(ball.dy) < gravity){
+						ball.dy = 0;
+					}
+					//air-res
+					if(Math.abs(ball.dx*10)/10 < drag){
+						ball.dx = 0;
+					} else {
+						if(ball.dx > 0){
+							ball.dx = ball.dx-drag;
+						} else {
+							ball.dx = ball.dx+drag;
+						}
+					}
+					if(Math.abs(ball.dy*10)/10 < drag){
+						ball.dy = 0;
+					} else {
+						if(ball.dy > 0){
+							ball.dy = ball.dy-drag;
+						} else {
+							ball.dy = ball.dy+drag;
+						}
 					}
 
 					// draw ball
-					// paintCell(ball.x, ball.y, "blue");
 					drawBall(ball.x, ball.y);
 
 					// End Mainloop if movement ends on floor
-					if(Math.round(ball.dy*100)/100 == 0 && Math.round(ball.dx*100)/100 == 0 && cw*ball.y+cw+1 >= h){
+					if(Math.round(ball.dy*100)/100 == 0 && Math.round(ball.dx*100)/100 == 0 && ball.y+cw+1 >= h){
 						clearInterval(gameLoop);
 					}
 				}
@@ -93,17 +100,17 @@
 					var plusOrMinusX = Math.random() < 0.5 ? -1 : 1;
 					var plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
 					ball = {
-						x: Math.round(Math.random()*(w-2*cw)/cw),
-						y: Math.round(Math.random()*(h-2*cw)/cw),
-						dx: plusOrMinusX*Math.round(Math.random()*maxspeed*100)/100,
-						dy: plusOrMinusY*Math.round(Math.random()*maxspeed*100)/100
+						x: Math.round(Math.random()*(w-2*cw)),
+						y: Math.round(Math.random()*(h-2*cw)/2),
+						dx: plusOrMinusX*Math.round(Math.random()*maxspeed),
+						dy: plusOrMinusY*Math.round(Math.random()*maxspeed)
 					}
 				}
 
 				function drawBall(x, y){
 					var imageObj = new Image();
 					imageObj.onload = function() {
-					  ctx.drawImage(imageObj, x*cw, y*cw, cw, cw);
+					  ctx.drawImage(imageObj, x, y, cw, cw);
 					};
 					imageObj.src = 'http://kevni.com/html5/bouncingBall/ball.png';
 				}
