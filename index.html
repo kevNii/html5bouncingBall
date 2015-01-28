@@ -28,6 +28,9 @@
 				var drag = 0.18;
 				var gameLoop;
 				var ball = [];
+				var imageObj = new Image();
+				imageObj.src = 'http://kevni.com/html5/bouncingBall/ball.png';
+
 				init();
 
 				function render(){
@@ -89,7 +92,6 @@
 
 					// draw ball
 					drawBall(ball.x, ball.y);
-
 					// End Mainloop if movement ends on floor
 					if(Math.round(ball.dy*100)/100 == 0 && Math.round(ball.dx*100)/100 == 0 && ball.y+cw+1 >= h){
 						clearInterval(gameLoop);
@@ -108,11 +110,7 @@
 				}
 
 				function drawBall(x, y){
-					var imageObj = new Image();
-					imageObj.onload = function() {
-					  ctx.drawImage(imageObj, x, y, cw, cw);
-					};
-					imageObj.src = 'http://kevni.com/html5/bouncingBall/ball.png';
+					ctx.drawImage(imageObj, x, y, cw,cw);
 				}
 
 				function init(){
